@@ -1,0 +1,143 @@
+ub summary()
+
+
+
+Worksheets("summary").Cells.Clear
+
+Worksheets("control").Cells(1, 2) = Worksheets("download").Cells(1, 1)
+Worksheets("control").Cells(2, 2) = Worksheets("download").Cells(1, 2)
+
+Worksheets("download").Select
+
+For i = 2 To 14
+
+jj = 1
+
+
+For j = 1 To Worksheets("download").UsedRange.Columns.Count
+
+    If Worksheets("download").Cells(i, j) = "" Then
+    Else: Worksheets("summary").Cells(jj, i - 1) = Worksheets("download").Cells(i, j)
+        jj = jj + 1
+    End If
+
+
+Next j
+Next i
+
+For i2 = 6 To 19
+For j2 = 2 To 4
+
+i3 = 1
+j3 = 2
+
+    If Worksheets("control").Cells(i2, j2) = 1 Then
+        
+        Worksheets("summary").Cells(1, i - 1) = Worksheets("control").Cells(i2, 1) & " - " & Worksheets("control").Cells(5, j2)
+          
+        Select Case Worksheets("control").Cells(5, j2)
+        
+            Case Is = "aktuális"
+            
+                Do While Worksheets("download").Cells(15, i3) <> ""
+                
+                    If Worksheets("download").Cells(15, i3) = Worksheets("control").Cells(i2, 1) Then
+                    
+                        Worksheets("summary").Cells(j3, i - 1) = Worksheets("download").Cells(Worksheets("download").UsedRange.Rows.Count - 2, i3)
+                        
+                        j3 = j3 + 1
+                        i3 = i3 + 14
+                        
+                    Else
+                    
+                     i3 = i3 + 1
+                    
+                    End If
+                    
+                Loop
+                
+            Case Is = "átlag"
+            
+                Do While Worksheets("download").Cells(15, i3) <> ""
+                    
+                        If Worksheets("download").Cells(15, i3) = Worksheets("control").Cells(i2, 1) Then
+                        
+                            Worksheets("download").Select
+                                                    
+                            return_range = Worksheets("download").Range(Worksheets("download").Cells(16, i3), Cells(Worksheets("download").UsedRange.Rows.Count - 2, i3))
+                        
+                            If WorksheetFunction.Sum(return_range) <> 0 Then
+                            
+                            Worksheets("summary").Cells(j3, i - 1) = Application.WorksheetFunction.Average(return_range)
+                            
+                            End If
+                            
+                            j3 = j3 + 1
+                            i3 = i3 + 14
+                            
+                        Else
+                        
+                         i3 = i3 + 1
+                        
+                        End If
+                        
+                 Loop
+                        
+            Case Is = "szórás"
+            
+                Do While Worksheets("download").Cells(15, i3) <> ""
+                    
+                        If Worksheets("download").Cells(15, i3) = Worksheets("control").Cells(i2, 1) Then
+                        
+                            Worksheets("download").Select
+                                                    
+                            return_range = Worksheets("download").Range(Worksheets("download").Cells(16, i3), Cells(Worksheets("download").UsedRange.Rows.Count - 2, i3))
+                        
+                            If WorksheetFunction.Sum(return_range) <> 0 Then
+
+                               Worksheets("summary").Cells(j3, i - 1) = Application.WorksheetFunction.StDev(return_range)
+
+                            End If
+
+                            
+                            j3 = j3 + 1
+                            i3 = i3 + 14
+                            
+                        Else
+                        
+                         i3 = i3 + 1
+                        
+                        End If
+                        
+                    Loop
+                            
+        End Select
+        
+        If i2 > 11 Then
+        
+        Worksheets("summary").Select
+        
+        Worksheets("summary").Range(Cells(2, i - 1), Cells(Worksheets("summary").UsedRange.Rows.Count, i - 1)).NumberFormat = "0.00%"
+                      
+        End If
+        
+        i = i + 1
+        
+    End If
+
+Next j2
+Next i2
+
+'-------------------------------------------------------------------------------------------
+
+'Tudnivalók
+'   - A download munkalapon az utolsó használt sornak a ténylegesen utolsó használt sornak kell lennie, különben nem tudja az adatokat normálisan 'kiszedni
+
+
+'-------------------------------------------------------------------------------------------
+
+Worksheets("summary").Select
+
+Worksheets("summary").Range(Cells(2, 13), Cells(Worksheets("summary").UsedRange.Rows.Count, 13)).NumberFormat = "yyyy/mm/dd;@"
+
+End Sub
