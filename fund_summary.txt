@@ -1,6 +1,4 @@
-ub summary()
-
-
+Sub summary()
 
 Worksheets("summary").Cells.Clear
 
@@ -8,6 +6,16 @@ Worksheets("control").Cells(1, 2) = Worksheets("download").Cells(1, 1)
 Worksheets("control").Cells(2, 2) = Worksheets("download").Cells(1, 2)
 
 Worksheets("download").Select
+
+k = 3
+
+Do While Worksheets("download").Cells(15, 2) <> Worksheets("download").Cells(15, k)
+
+k = k + 1
+
+Loop
+
+kk = k - 2
 
 For i = 2 To 14
 
@@ -46,7 +54,7 @@ j3 = 2
                         Worksheets("summary").Cells(j3, i - 1) = Worksheets("download").Cells(Worksheets("download").UsedRange.Rows.Count - 2, i3)
                         
                         j3 = j3 + 1
-                        i3 = i3 + 14
+                        i3 = i3 + kk
                         
                     Else
                     
@@ -73,7 +81,7 @@ j3 = 2
                             End If
                             
                             j3 = j3 + 1
-                            i3 = i3 + 14
+                            i3 = i3 + kk
                             
                         Else
                         
@@ -101,7 +109,7 @@ j3 = 2
 
                             
                             j3 = j3 + 1
-                            i3 = i3 + 14
+                            i3 = i3 + kk
                             
                         Else
                         
@@ -131,8 +139,8 @@ Next i2
 '-------------------------------------------------------------------------------------------
 
 'Tudnivalók
-'   - A download munkalapon az utolsó használt sornak a ténylegesen utolsó használt sornak kell lennie, különben nem tudja az adatokat normálisan 'kiszedni
-
+'   - Az adatokat dátum szerint növekvõ sorrendben kell leszedni
+'   - A download munkalapon az utolsó használt sornak a ténylegesen utolsó használt sornak kell lennie, különben nem tudja az adatokat normálisan kiszedni
 
 '-------------------------------------------------------------------------------------------
 
@@ -141,3 +149,83 @@ Worksheets("summary").Select
 Worksheets("summary").Range(Cells(2, 13), Cells(Worksheets("summary").UsedRange.Rows.Count, 13)).NumberFormat = "yyyy/mm/dd;@"
 
 End Sub
+
+Sub correlation()
+
+For i = 2 To Worksheets("summary").UsedRange.Rows.Count
+
+    Worksheets("correlation").Cells(i, 1) = Worksheets("summary").Cells(i, 2)
+    
+    Worksheets("correlation").Cells(1, i) = Worksheets("summary").Cells(i, 2)
+
+Next i
+
+ii = 1
+
+For i = 2 To Worksheets("correlation").UsedRange.Rows.Count
+
+    For ii = 1 To Worksheets("download").UsedRange.Columns.Count
+                           
+    If Worksheets("download").Cells(3, ii) = Worksheets("correlation").Cells(i, 1) Then
+               
+        Worksheets("download").Select
+        
+        row_range = Worksheets("download").Range(Worksheets("download").Cells(16, ii + 1), Cells(Worksheets("download").UsedRange.Rows.Count - 2, ii + 1))
+    
+        For j = 2 To Worksheets("correlation").UsedRange.Columns.Count
+        
+            For jj = 1 To Worksheets("download").UsedRange.Columns.Count
+                                
+                If Worksheets("download").Cells(3, jj) = Worksheets("correlation").Cells(1, j) Then
+                
+                    column_range = Worksheets("download").Range(Worksheets("download").Cells(16, jj + 1), Cells(Worksheets("download").UsedRange.Rows.Count - 2, jj + 1))
+                
+                    Worksheets("correlation").Cells(i, j) = Application.WorksheetFunction.Correl(row_range, column_range)
+                        
+                End If
+                
+             Next jj
+            
+         Next j
+                
+    End If
+    
+    Next ii
+    
+Next i
+
+'Feltételes formázás
+
+Worksheets("correlation").Select
+
+Worksheets("correlation").Range(Cells(2, 2), Cells(Worksheets("correlation").UsedRange.Rows.Count, Worksheets("correlation").UsedRange.Columns.Count)).Select
+
+ Selection.FormatConditions.AddColorScale ColorScaleType:=3
+ 
+    Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
+    
+    Selection.FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    
+        With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+            .Color = 7039480
+            .TintAndShade = 0
+        End With
+    
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    
+    Selection.FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    
+        With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+            .Color = 8711167
+            .TintAndShade = 0
+        End With
+        
+    Selection.FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+        With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
+            .Color = 8109667
+            .TintAndShade = 0
+    End With
+
+
+End Sub
+
